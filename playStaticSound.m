@@ -8,6 +8,12 @@ tic
 AOLR=analogoutput('nidaq','PXI1Slot2'); 
 data = 0;
 
+%Marc's recordings
+recordingNb = 1;
+recordingfrontal = 1;
+recordingleft = 0;
+recordingright = 0;
+
 %% DO NOT CHANGE HERE!
 out_AO=daqhwinfo(AOLR);
 set(AOLR, 'SampleRate', 44100);
@@ -28,11 +34,26 @@ set(AOLR,'TriggerType', 'Manual');
 
 %% SOUND FILES
 % set sound input path
-addpath(genpath(pwd));
 soundFileName = {};
 soundArray={};
 
-% read sounds
+%find the correct input folder
+inputPath = fullfile(fileparts(mfilename('fullpath')),...
+    'LePoulpe_input_sound');
+
+inputFolder = fullfile(inputPath,'stim_frontal',['recording',...
+                                                num2str(recordingNb)]);
+
+if recordingleft == 1
+    inputFolder = fullfile(inputPath,'stim_-90',...
+        ['recording',num2str(recordingNb)]);
+    
+elseif recordingright == 1
+    inputFolder = fullfile(inputPath,'stim_+90',...
+        ['recording',num2str(recordingNb)]);
+end
+
+% load/read sounds
 soundFileName = 'pn_150ms_5msfadeinout.wav';
 [soundArray{1}, Fs] = audioread(soundFileName);
 
