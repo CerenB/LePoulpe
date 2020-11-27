@@ -77,13 +77,16 @@ soundFileNamesList(~[soundFileNamesList.isdir]) = [];
 
 % for iSound = 1:nbSpeakers
 
-soundFileName = fulfile(inputFolder, filesep, soundFileNamesList(iSound).name)
+
 
 % load/read sounds
-for iwav = 1:31
-    soundFileName{iwav} = fullfile(inputFolder,['noiseburst_bp_',...
-                                    num2str(iwav),'.wav']);
+for iwav = 1:nbSpeakers
+
+    soundFileName = fulfile(inputFolder, filesep, ...
+                            soundFileNamesList(iwav).name)
+
     [soundArray{iwav}, Fs] = audioread(soundFileName{iwav});
+
 end
 
 % define speakers to be used
@@ -92,8 +95,6 @@ speakerArray = [1:15 31 16:30];
 
 
 %% define other parameters
-%numberof speakers
-nbSpeakers = 31;
 %the intensity of sound
 soundAmp = 1;
 % initial gap in sec
@@ -107,7 +108,7 @@ initGap = initGap * samplingFrequency;
 chosenSound = 1:31;
 %chosenSound = ones(1,length(speakerArray));
 %preallocate with burst sound
-speakerSoundCouple = [speakerArray;chosenSound]; 
+speakerSoundCouple = [speakerArray;chosenSound];
 
 %% initialise wav matrix
 wav_length=0;
