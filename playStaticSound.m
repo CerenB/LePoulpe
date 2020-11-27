@@ -99,22 +99,24 @@ initGap = 5;
 samplingFrequency = Fs;
 
 AOLR.SampleRate = samplingFrequency;
-initGap = initGap * AOLR.SampleRate;
+initGap = initGap * samplingFrequency;
 
-soundToChoose = ones(1,length(speakerArray));
+% when one has many sounds
+% chosenSound = 1:31;
+chosenSound = ones(1,length(speakerArray));
 %preallocate with burst sound
-speakerSoundCouple = [speakerArray;soundToChoose];
+speakerSoundCouple = [speakerArray;chosenSound]; 
 
 %% initialise wav matrix
 wav_length=0;
 for ch=1:size(speakerSoundCouple,2)
-    wav_length= length(soundArray{speakerSoundCouple(2,ch)});
+    wav_length = length(soundArray{speakerSoundCouple(2,ch)});
 end
 
-data=[];
-data= zeros(wav_length,nbSpeakers);
-iniz=0;
-fin=0;
+data = [];
+data = zeros(wav_length,nbSpeakers);
+iniz = 0;
+fin = 0;
 
 %% make wav matrix with gaps and sounds and designated speakers
 for j = 1:length(speakerArray)
@@ -122,7 +124,7 @@ for j = 1:length(speakerArray)
     ch = speakerArray(j);
     % if ch == 31
         nloop = 1;
-        soundToChoose(j) = 1;
+        chosenSound(j) = 1;
     %
     % elseif ch == 1 || ch == 16
     %     nloop = 1;
@@ -140,8 +142,8 @@ for j = 1:length(speakerArray)
         else
             gap = 0.0;
         end
-        fin=iniz+length(soundArray{soundToChoose(j)})-1+ gap;
-        data(iniz:(fin-gap),speakerArray(j))=soundAmp*soundArray{soundToChoose(j)};   %*2 looks like amplifier here
+        fin=iniz+length(soundArray{chosenSound(j)})-1+ gap;
+        data(iniz:(fin-gap),speakerArray(j))=soundAmp*soundArray{chosenSound(j)};   %*2 looks like amplifier here
     end
 end
 
