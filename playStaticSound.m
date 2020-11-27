@@ -81,7 +81,7 @@ soundFileName = fulfile(inputFolder, filesep, soundFileNamesList(iSound).name)
 
 % load/read sounds
 
-soundFileName = fullfile(inputFolder,'noiseburst_bp_1.wav');
+% soundFileName = fullfile(inputFolder,'noiseburst_bp_1.wav');
 [soundArray{1}, Fs] = audioread(soundFileName);
 
 % define speakers to be used
@@ -93,7 +93,7 @@ speakerArray = [1:15 31 16:30];
 %numberof speakers
 nbSpeakers = 31;
 %the intensity of sound
-soundAmp = 1; 
+soundAmp = 1;
 % initial gap in sec
 initGap = 5;
 samplingFrequency = Fs;
