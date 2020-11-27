@@ -47,7 +47,7 @@ soundFileName = {};
 soundArray={};
 
 %find the correct input folder
-inputPath = fullfile(fileparts(mfilename('fullpath')),...
+inputPath = fullfile(fileparts(mfilename('fullpath')),'..',...
     'LePoulpe_input_sound');
 
 inputFolder = fullfile(inputPath,'stim_frontal',['recording',...
@@ -80,12 +80,23 @@ soundFileNamesList(~[soundFileNamesList.isdir]) = [];
 soundFileName = fulfile(inputFolder, filesep, soundFileNamesList(iSound).name)
 
 % load/read sounds
-soundFileName = 'pn_150ms_5msfadeinout.wav';
+
+soundFileName = fullfile(inputFolder,'noiseburst_bp_1.wav');
 [soundArray{1}, Fs] = audioread(soundFileName);
 
 % define speakers to be used
 % 1:15 31 and 16:30
 speakerArray = [1:15 31 16:30];
+
+
+%% define other parameters
+%numberof speakers
+nbSpeakers = 31;
+%the intensity of sound
+soundAmp = 1; 
+% initial gap in sec
+initGap = 5;
+samplingFrequency = Fs;
 
 AOLR.SampleRate = samplingFrequency;
 initGap = initGap * AOLR.SampleRate;
