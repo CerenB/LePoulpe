@@ -80,52 +80,41 @@ initGap = initGap * samplingFrequency;
 % when one has many sounds
 chosenSound = 1:31;
 %chosenSound = ones(1,length(speakerArray));
-%preallocate with burst sound
-speakerSoundCouple = [speakerArray;chosenSound]; 
+
 
 %% initialise wav matrix
 wav_length=0;
+%preallocate with burst sound
+speakerSoundCouple = [speakerArray;chosenSound]; 
+
 for ch=1:size(speakerSoundCouple,2)
     wav_length = length(soundArray{speakerSoundCouple(2,ch)});
 end
 
 data = [];
 data = zeros(wav_length,nbSpeakers);
-iniz = 0;
-fin = 0;
+startPoint = 0;
+endPoint = 0;
 
 %% make wav matrix with gaps and sounds and designated speakers
 for iSpeaker = 1:length(speakerArray)
 
-    ch = speakerArray(iSpeaker);
-    % if ch == 31
-        nloop = 1;
-        chosenSound(iSpeaker) = 1;
-    %
-    % elseif ch == 1 || ch == 16
-    %     nloop = 1;
-    %     chosen_sound(j) = 2;
-    % else
-    %     nloop = nburst;
-    % end
-
-    for aa = 1:nloop
-        iniz= fin+1;
-        %seq_CH(2,ch) = chosen_sound(j)
-        %seq_CH(1,ch) = array_speaker(j)
-        if aa == nloop
-            gap = initGap;
-        else
-            gap = 0.0;
-        end
-        fin=iniz+length(soundArray{chosenSound(iSpeaker)})-1+ gap;
-        data(iniz:(fin-gap),speakerArray(iSpeaker))=soundAmp*soundArray{chosenSound(iSpeaker)};   %*2 looks like amplifier here
-    end
+    startPoint= endPoint+1;
+    gap = initGap;
+    
+    currentSound = soundArray{chosenSound(iSpeaker)};
+    chosenSoundLength = length(soundArray{chosenSound(iSpeaker)});
+    
+    endPoint = startPoint + chosenSoundLength -1 + gap;
+    
+    %put into a matrix
+    data(startPoint:(endPoint-gap),speakerArray(iSpeaker)) = soundAmp * currentSound;   %*2 looks like amplifier here
+    
 end
 
 % mini plot to check matrix is OK
 figure;imagesc(data)
-dur = size(data,1)/44100;
+dur = size(data,1)/Fs;
 
 %% START Analog channels == play sounds in the speakers
 % to queue the obj
