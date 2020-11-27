@@ -80,9 +80,11 @@ soundFileNamesList(~[soundFileNamesList.isdir]) = [];
 soundFileName = fulfile(inputFolder, filesep, soundFileNamesList(iSound).name)
 
 % load/read sounds
-
-% soundFileName = fullfile(inputFolder,'noiseburst_bp_1.wav');
-[soundArray{1}, Fs] = audioread(soundFileName);
+for iwav = 1:31
+    soundFileName{iwav} = fullfile(inputFolder,['noiseburst_bp_',...
+                                    num2str(iwav),'.wav']);
+    [soundArray{iwav}, Fs] = audioread(soundFileName{iwav});
+end
 
 % define speakers to be used
 % 1:15 31 and 16:30
@@ -102,8 +104,8 @@ AOLR.SampleRate = samplingFrequency;
 initGap = initGap * samplingFrequency;
 
 % when one has many sounds
-% chosenSound = 1:31;
-chosenSound = ones(1,length(speakerArray));
+chosenSound = 1:31;
+%chosenSound = ones(1,length(speakerArray));
 %preallocate with burst sound
 speakerSoundCouple = [speakerArray;chosenSound]; 
 
@@ -119,12 +121,12 @@ iniz = 0;
 fin = 0;
 
 %% make wav matrix with gaps and sounds and designated speakers
-for j = 1:length(speakerArray)
+for iSpeaker = 1:length(speakerArray)
 
-    ch = speakerArray(j);
+    ch = speakerArray(iSpeaker);
     % if ch == 31
         nloop = 1;
-        chosenSound(j) = 1;
+        chosenSound(iSpeaker) = 1;
     %
     % elseif ch == 1 || ch == 16
     %     nloop = 1;
@@ -142,8 +144,8 @@ for j = 1:length(speakerArray)
         else
             gap = 0.0;
         end
-        fin=iniz+length(soundArray{chosenSound(j)})-1+ gap;
-        data(iniz:(fin-gap),speakerArray(j))=soundAmp*soundArray{chosenSound(j)};   %*2 looks like amplifier here
+        fin=iniz+length(soundArray{chosenSound(iSpeaker)})-1+ gap;
+        data(iniz:(fin-gap),speakerArray(iSpeaker))=soundAmp*soundArray{chosenSound(iSpeaker)};   %*2 looks like amplifier here
     end
 end
 
