@@ -5,7 +5,7 @@ tic
 %% CHOOSE/CHANGE HERE ONLY
 % Insert PXI1Slot3, data = 1, for vertical arm
 % Put PXI1Slot2, data =0, for horizontal arm
-AOLR=analogoutput('nidaq','PXI1Slot2'); 
+AOLR=analogoutput('nidaq','PXI1Slot2');
 data = 0;
 
 %Marc's recordings
@@ -36,9 +36,10 @@ set(AOLR,'TriggerType', 'Manual');
 % set sound input path
 soundFileName = {};
 soundArray={};
+nbSpeakers = 31;
 
 %find the correct input folder
-inputPath = fullfile(fileparts(mfilename('fullpath')),...
+inputPath = fullfile(fileparts(mfilename('fullpath')),'..',...
     'LePoulpe_input_sound');
 
 inputFolder = fullfile(inputPath,'stim_frontal',['recording',...
@@ -47,84 +48,83 @@ inputFolder = fullfile(inputPath,'stim_frontal',['recording',...
 if recordingleft == 1
     inputFolder = fullfile(inputPath,'stim_-90',...
         ['recording',num2str(recordingNb)]);
-    
+
 elseif recordingright == 1
     inputFolder = fullfile(inputPath,'stim_+90',...
         ['recording',num2str(recordingNb)]);
 end
 
+% Read the content of the target folder
+soundFileNamesList = dir(inputFolder);
+
+% Remove the directories and keep only files
+soundFileNamesList([soundFileNamesList.isdir]) = [];
+
+
 % load/read sounds
-soundFileName = 'pn_150ms_5msfadeinout.wav';
-[soundArray{1}, Fs] = audioread(soundFileName);
+for iwav = 1:nbSpeakers
+
+    soundFileName = fullfile(inputFolder, filesep, ...
+                            soundFileNamesList(iwav).name);
+
+    [soundArray{iwav}, Fs] = audioread(soundFileName);
+
+end
 
 % define speakers to be used
 % 1:15 31 and 16:30
 speakerArray = [1:15 31 16:30];
 
+% when one has many sounds
+chosenSound = 1:31;
+%chosenSound = ones(1,length(speakerArray));
 
 %% define other parameters
-%numberof speakers
-nbSpeakers = 31;
 %the intensity of sound
-soundAmp = 1; 
+soundAmp = 1;
 % initial gap in sec
-initGap = 0.25;
-samplingFrequency = 44100;
+initGap = 5;
+samplingFrequency = Fs;
 
 AOLR.SampleRate = samplingFrequency;
-initGap = initGap * AOLR.SampleRate;
-
-soundToChoose = ones(1,length(speakerArray));
-%preallocate with burst sound
-speakerSoundCouple = [speakerArray;soundToChoose]; 
-
+initGap = initGap * samplingFrequency;
 %% initialise wav matrix
 wav_length=0;
+%preallocate with burst sound
+speakerSoundCouple = [speakerArray;chosenSound]; 
+
 for ch=1:size(speakerSoundCouple,2)
-    wav_length= length(soundArray{speakerSoundCouple(2,ch)});
+    wav_length = length(soundArray{speakerSoundCouple(2,ch)});
 end
 
-data=[];
-data= zeros(wav_length,nbSpeakers);
-iniz=0;
-fin=0;
+data = [];
+data = zeros(wav_length,nbSpeakers);
+startPoint = 0;
+endPoint = 0;
 
 %% make wav matrix with gaps and sounds and designated speakers
-for j = 1:length(speakerArray)
+for iSpeaker = 1:length(speakerArray)
 
-    ch = speakerArray(j);
-    % if ch == 31
-        nloop = 1;
-        soundToChoose(j) = 1;
-    %
-    % elseif ch == 1 || ch == 16
-    %     nloop = 1;
-    %     chosen_sound(j) = 2;
-    % else
-    %     nloop = nburst;
-    % end
-
-    for aa = 1:nloop
-        iniz= fin+1;
-        %seq_CH(2,ch) = chosen_sound(j)
-        %seq_CH(1,ch) = array_speaker(j)
-        if aa == nloop
-            gap = initGap;
-        else
-            gap = 0.0;
-        end
-        fin=iniz+length(soundArray{soundToChoose(j)})-1+ gap;
-        data(iniz:(fin-gap),speakerArray(j))=soundAmp*soundArray{soundToChoose(j)};   %*2 looks like amplifier here
-    end
+    startPoint= endPoint+1;
+    gap = initGap;
+    
+    currentSound = soundArray{chosenSound(iSpeaker)};
+    chosenSoundLength = length(soundArray{chosenSound(iSpeaker)});
+    
+    endPoint = startPoint + chosenSoundLength -1 + gap;
+    
+    %put into a matrix
+    data(startPoint:(endPoint-gap),speakerArray(iSpeaker)) = soundAmp * currentSound;   %*2 looks like amplifier here
+    
 end
 
 % mini plot to check matrix is OK
 figure;imagesc(data)
-dur = size(data,1)/44100;
+dur = size(data,1)/Fs;
 
 %% START Analog channels == play sounds in the speakers
 % to queue the obj
-putdata(AOLR,data) 
+putdata(AOLR,data)
 
 % Start AO, issue a manual trigger, and wait for
 % the device object to stop running.
@@ -138,7 +138,7 @@ trigger(AOLR)
 %stop(AO)
 
 %wait before doing anything else
-wait(AOLR, dur+1) 
+wait(AOLR, dur+1)
 toc
 
 %clear digital channel
