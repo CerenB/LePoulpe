@@ -14,15 +14,6 @@ recordingfrontal = 1;
 recordingleft = 0;
 recordingright = 0;
 
-%% define other parameters
-%numberof speakers
-nbSpeakers = 31;
-%the intensity of sound
-soundAmp = 1;
-% initial gap in sec
-initGap = 0.25;
-samplingFrequency = 44100;
-
 %% DO NOT CHANGE HERE!
 out_AO=daqhwinfo(AOLR);
 set(AOLR, 'SampleRate', 44100);
@@ -45,6 +36,7 @@ set(AOLR,'TriggerType', 'Manual');
 % set sound input path
 soundFileName = {};
 soundArray={};
+nbSpeakers = 31;
 
 %find the correct input folder
 inputPath = fullfile(fileparts(mfilename('fullpath')),'..',...
@@ -66,26 +58,16 @@ end
 soundFileNamesList = dir(inputFolder);
 
 % Remove the directories and keep only files
-soundFileNamesList(~[soundFileNamesList.isdir]) = [];
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% I GUES YOU WANT TO START YOUR LOOP FROM HERE
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% for iSound = 1:nbSpeakers
-
+soundFileNamesList([soundFileNamesList.isdir]) = [];
 
 
 % load/read sounds
 for iwav = 1:nbSpeakers
 
-    soundFileName = fulfile(inputFolder, filesep, ...
-                            soundFileNamesList(iwav).name)
+    soundFileName = fullfile(inputFolder, filesep, ...
+                            soundFileNamesList(iwav).name);
 
-    [soundArray{iwav}, Fs] = audioread(soundFileName{iwav});
+    [soundArray{iwav}, Fs] = audioread(soundFileName);
 
 end
 
@@ -93,6 +75,9 @@ end
 % 1:15 31 and 16:30
 speakerArray = [1:15 31 16:30];
 
+% when one has many sounds
+chosenSound = 1:31;
+%chosenSound = ones(1,length(speakerArray));
 
 %% define other parameters
 %the intensity of sound
@@ -103,12 +88,6 @@ samplingFrequency = Fs;
 
 AOLR.SampleRate = samplingFrequency;
 initGap = initGap * samplingFrequency;
-
-% when one has many sounds
-chosenSound = 1:31;
-%chosenSound = ones(1,length(speakerArray));
-
-
 %% initialise wav matrix
 wav_length=0;
 %preallocate with burst sound
