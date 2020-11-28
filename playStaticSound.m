@@ -3,111 +3,148 @@ close all;
 
 tic
 %% CHOOSE/CHANGE HERE ONLY
-AOLR=analogoutput('nidaq','PXI1Slot2'); %Put 3, data = 1, Put 2, data =0;
-data = 0; %0 1
+% Insert PXI1Slot3, data = 1, for vertical arm
+% Put PXI1Slot2, data =0, for horizontal arm
+AOLR=analogoutput('nidaq','PXI1Slot2');
+data = 0;
+
+%Marc's recordings
+recordingNb = 1;
+recordingfrontal = 1;
+recordingleft = 0;
+recordingright = 0;
 
 %% DO NOT CHANGE HERE!
 out_AO=daqhwinfo(AOLR);
 set(AOLR, 'SampleRate', 44100);
 addchannel(AOLR,0:30);
-% condition = 99;
-%%
- dio = digitalio('nidaq', 'PXI1Slot3');
- addline (dio, 0:7, 'out');
- %data = 0;
- putvalue(dio.Line(1),data);
- value = getvalue(dio);
 
-%AnalogLeftRight
+%% digital switch between horizontal and vertical arm
+dio = digitalio('nidaq', 'PXI1Slot3');
+addline (dio, 0:7, 'out');
+
+putvalue(dio.Line(1),data);
+value = getvalue(dio);
+
+%% Analog channel settings
 out_ranges=get(AOLR.Channel,'OutputRange');
 setverify(AOLR.Channel,'OutputRange', [-5 5]);
 setverify(AOLR.Channel,'UnitsRange', [-5 5]);
 set(AOLR,'TriggerType', 'Manual');
-%
 
 %% SOUND FILES
-addpath(genpath(pwd)); %'E:\MEGAQuaTRON'
-files_sound = {};
-array_sound={};
+% set sound input path
+soundFileName = {};
+soundArray={};
+nbSpeakers = 31;
 
-files_sound = 'pn_150ms_5msfadeinout.wav';
-[array_sound{1}, Fs] = audioread(files_sound);
+%find the correct input folder
+inputPath = fullfile(fileparts(mfilename('fullpath')),'..',...
+    'LePoulpe_input_sound');
 
-% array_speaker = [1,2,8,16,17,23,31]; with middle sounds included (2 & 8)
-% array_speaker = [1,2,16,17,31]; %old version
-% update 03/05/2018
-% 31 is the center, but the numbers go 1:15 31 and 16:30
-% array_speaker = [1,2,14,15,17,29,30,31]; new conversion
-array_speaker = [29,29,30,30,28,28,30,30]; % CB edited 3.10.2019
-% CB edited 06.06.2019
-%array_speaker = [1:15];
+inputFolder = fullfile(inputPath,'stim_frontal',['recording',...
+                                                num2str(recordingNb)]);
 
-totspeaker = 31;
-amp = 1; %the intensity of sound
-gap_init = 0.25; %sec
-AOLR.SampleRate = 44100;
-gap_init = gap_init * AOLR.SampleRate;
+if recordingleft == 1
+    inputFolder = fullfile(inputPath,'stim_-90',...
+        ['recording',num2str(recordingNb)]);
 
-nburst = 19;
+elseif recordingright == 1
+    inputFolder = fullfile(inputPath,'stim_+90',...
+        ['recording',num2str(recordingNb)]);
+end
 
-chosen_sound = ones(1,length(array_speaker));
-seq_CH = [array_speaker;chosen_sound]; %preallocate with burst sound
+% Read the content of the target folder
+soundFileNamesList = dir(inputFolder);
 
-%%
+% Remove the directories and keep only files
+soundFileNamesList([soundFileNamesList.isdir]) = [];
+
+
+% load/read sounds
+for iwav = 1:nbSpeakers
+
+    soundFileName = fullfile(inputFolder, filesep, ...
+                            soundFileNamesList(iwav).name);
+
+    [soundArray{iwav}, Fs] = audioread(soundFileName);
+
+end
+
+% define speakers to be used
+% 1:15 31 and 16:30
+speakerArray = [1:15 31 16:30];
+
+% when one has many sounds
+chosenSound = 1:31;
+%chosenSound = ones(1,length(speakerArray));
+
+%% define other parameters
+%the intensity of sound
+soundAmp = 1;
+% initial gap in sec
+initGap = 5;
+samplingFrequency = Fs;
+
+AOLR.SampleRate = samplingFrequency;
+initGap = initGap * samplingFrequency;
+%% initialise wav matrix
 wav_length=0;
-for ch=1:size(seq_CH,2)
-    wav_length= length(array_sound{seq_CH(2,ch)});
+%preallocate with burst sound
+speakerSoundCouple = [speakerArray;chosenSound]; 
+
+for ch=1:size(speakerSoundCouple,2)
+    wav_length = length(soundArray{speakerSoundCouple(2,ch)});
 end
 
-data=[];
-data= zeros(wav_length,totspeaker);
-iniz=0;
-fin=0;
+data = [];
+data = zeros(wav_length,nbSpeakers);
+startPoint = 0;
+endPoint = 0;
 
-%%
-for j = 1:length(array_speaker)
+%% make wav matrix with gaps and sounds and designated speakers
+for iSpeaker = 1:length(speakerArray)
 
-    ch = array_speaker(j);
-    % if ch == 31
-        nloop = 1;
-        chosen_sound(j) = 1;
-    %
-    % elseif ch == 1 || ch == 16
-    %     nloop = 1;
-    %     chosen_sound(j) = 2;
-    % else
-    %     nloop = nburst;
-    % end
-
-    for aa = 1:nloop
-        iniz= fin+1;
-        %seq_CH(2,ch) = chosen_sound(j)
-        %seq_CH(1,ch) = array_speaker(j)
-        if aa == nloop
-            gap = gap_init;
-        else
-            gap = 0.0;
-        end
-        fin=iniz+length(array_sound{chosen_sound(j)})-1+ gap;
-        data(iniz:(fin-gap),array_speaker(j))=amp*array_sound{chosen_sound(j)};   %*2 looks like amplifier here
-    end
+    startPoint= endPoint+1;
+    gap = initGap;
+    
+    currentSound = soundArray{chosenSound(iSpeaker)};
+    chosenSoundLength = length(soundArray{chosenSound(iSpeaker)});
+    
+    endPoint = startPoint + chosenSoundLength -1 + gap;
+    
+    %put into a matrix
+    data(startPoint:(endPoint-gap),speakerArray(iSpeaker)) = soundAmp * currentSound;   %*2 looks like amplifier here
+    
 end
 
+% mini plot to check matrix is OK
 figure;imagesc(data)
-dur = size(data,1)/44100; %in sec
-%% START
-putdata(AOLR,data) % to queue the obj
+dur = size(data,1)/Fs;
+
+%% START Analog channels == play sounds in the speakers
+% to queue the obj
+putdata(AOLR,data)
+
 % Start AO, issue a manual trigger, and wait for
 % the device object to stop running.
 start(AOLR)
-%pause(1) %when to start exp
-trigger(AOLR)
-%stop(AO) terminates the execution
 
-wait(AOLR, dur+1) %wait before doing anything else
+%when to start exp
+%pause(1)
+trigger(AOLR)
+
+% terminates the execution
+%stop(AO)
+
+%wait before doing anything else
+wait(AOLR, dur+1)
 toc
+
+%clear digital channel
 delete(dio)
 clear dio
 
+%clear analog channels
 delete(AOLR)
 clear AOLR
