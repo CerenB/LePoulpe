@@ -3,48 +3,67 @@
 
 % This script play a provided sound (cut in chunks one per each speaker) in subsequent speakers
 % to create motion a motionn perception inn both the horizontal and vertical axes
+%
+% NativeInstrument to Matlab arm/speaker correspondance:
+%
+%  Horizontal arm (left to right)
+%  - NI: 'PXI1Slot2' ao0-14  ; Matlab: 1:15 left arm (left to center)
+%  - NI: 'PXI1Slot2' ao15-30 ; Matlab: 31:16 right arm (center to right)
+%
+%  Vertical arm (up to down)
+%  - NI: 'PXI1Slot3' ao0-14  ; Matlab: 1:14 upper arm (up to center)
+%  - NI: 'PXI1Slot3' ao30-15 ; Matlab: 31:16 lower arm (center to down)
 
 WaitSecs(5);
 
 % set sound intensity
 amp = 1;
 
-% Slot2 ao0-14 is left arm
-% Slot2 ao15-30 is right arm (center speaker included here), ao30 is center
-% Slot3 ao0-14 upper arm
-% Slot3 ao15-29 below arm
-% all 4 arms, the direction is approaching to the center
-
 tic;
 
+% this loop plays:
+%  optionn 1 : right-ward direction 'long' file
+%  optionn 2 : down-ward direction 'long' file
+%  optionn 3 : right-ward direction 'short' file
+%  optionn 4 : down-ward direction 'long' file
+
 for option = 1:4
-    %% CHOOSE/CHANGE HERE ONLY
+
     switch option
-        case 1 % EVENT HORIZONTAL
-            name = 'PXI1Slot2'; % Put Slot2 value =0; Put Slot3 value = 1,
-            value = 0; % 0 1 (change value of central led: hor or vert sound bar)
 
-        case 2 % EVENT VERTICAL
-            name = 'PXI1Slot3';
-            % AOLR=analogoutput('nidaq','PXI1Slot3'); % Put Slot2 value =0; Put Slot3 value = 1,
-            value = 1;
+        % name: NI analog card slot
+        % value: make the switch between arms (0 = horizontal ; 1 = vertical)
 
-        case 3 % TARGET HORIZONTAL
+        % EVENT HORIZONTAL
+        case 1
             name = 'PXI1Slot2';
             value = 0;
 
-        case 4 % TARGET VERTICAL
+        % EVENT VERTICAL
+        case 2
+            name = 'PXI1Slot3';
+            value = 1;
+
+        % TARGET HORIZONTAL
+        case 3
+            name = 'PXI1Slot2';
+            value = 0;
+
+        % TARGET VERTICAL
+        case 4
             name = 'PXI1Slot3';
             value = 1;
     end
 
+    % init the NI analog card
     AOLR = analogoutput('nidaq', name);
-    target_sound_dur = 1200;
-    event_sound_dur = 600;
-    %% DO NOT CHANGE HERE!
+
     out_AO = daqhwinfo(AOLR);
+
     set(AOLR, 'SampleRate', 44100);
+
     addchannel(AOLR, 0:30);
+
     %%
     dio = digitalio('nidaq', 'PXI1Slot3');
     addline (dio, 0:7, 'out');
