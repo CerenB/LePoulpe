@@ -55,28 +55,30 @@ for option = 1:4
             value = 1;
     end
 
-    % init the NI analog card
+    % -------------------------------------- HELP NEEDED HERE --------------------------------------
+
+    %% init the NI analog card
     AOLR = analogoutput('nidaq', name);
-
     out_AO = daqhwinfo(AOLR);
-
     set(AOLR, 'SampleRate', 44100);
-
     addchannel(AOLR, 0:30);
 
-    %%
     dio = digitalio('nidaq', 'PXI1Slot3');
     addline (dio, 0:7, 'out');
     putvalue(dio.Line(1), value);
 
     % AnalogLeftRight
-    out_ranges = get(AOLR.Channel, 'OutputRange');
+    out_ranges = get(AOLR.Channel, 'OutputRange'); %%% this seems to be unused %%%
     setverify(AOLR.Channel, 'OutputRange', [-5 5]);
     setverify(AOLR.Channel, 'UnitsRange', [-5 5]);
     set(AOLR, 'TriggerType', 'Manual');
 
-    %% SOUND FILES
-    addpath(genpath(pwd)); % 'E:\MEGAQuaTRON'
+    % ----------------------------------------------------------------------------------------------
+
+    %% load chunk audio files
+    addpath(genpath(pwd)); %%% better to avoid this and proivide absolout path
+
+
     files_sound = {};
     array_sound = {};
 
@@ -90,9 +92,10 @@ for option = 1:4
     nspeaker = 31;
     chosen_sound = repmat(1:nspeaker, [1 2]);
 
+    pathname = 'sounds';
+
     switch option
         case 1 % EVENT RECORDINGS HORIZONTAL
-            pathname = 'sounds';
             array_speaker = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
             for i = 1:nspeaker
                 files_sound{i} = fullfile(pathname, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
@@ -100,7 +103,6 @@ for option = 1:4
             end
 
         case 2 % EVENT RECORDINGS VERT
-            pathname =  'sounds';
             array_speaker = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
             for i = 1:nspeaker
                 files_sound{i} = fullfile(pathname, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
@@ -108,7 +110,6 @@ for option = 1:4
             end
 
         case 3 % TARGET RECORDINGS HORIZONTAL
-            pathname = 'sounds';
             array_speaker = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
             for i = 1:nspeaker
                 files_sound{i} = fullfile(pathname, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
@@ -116,7 +117,6 @@ for option = 1:4
             end
 
         case 4 % TARGET RECORDINGS VERT
-            pathname =  'sounds';
             array_speaker = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
             for i = 1:nspeaker
                 files_sound{i} = fullfile(pathname, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
