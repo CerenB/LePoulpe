@@ -10,10 +10,10 @@ function [soundChunks] = cutSounds(nbSpeakers, saveAsWav)
 %
 %   [argout1, argout2] = cutSounds(nbSpeakers == 31, [saveAsWav == 0])
 %
-% :param nbSpeakers: the nnumber of speakers (chunks) in which the file audio should be divided
+% :param nbSpeakers: the number of speakers (chunks) in which the file audio should be divided
 % :type argin1: integer
-% :param saveAsWav: boolean to save the chinkns in separate audio files in a subfolder at the same 
-%                   location of the input adio files 
+% :param saveAsWav: boolean to save the audio chunks as .wav files in a subfolder where
+% input audio file is
 %
 % :returns: - :soundChunks: (matrix) (nbSpeakers, x) a matrix with the audio chunks ready to be used
 
