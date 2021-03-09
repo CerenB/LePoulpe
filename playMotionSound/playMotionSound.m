@@ -84,14 +84,15 @@ for option = 1:4
         case 4
             name = 'PXI1Slot3';
             value = 1;
+
     end
 
     % -------------------------------------- HELP NEEDED HERE --------------------------------------
 
     %% init the NI analog card
+
     AOLR = analogoutput('nidaq', name);
     out_AO = daqhwinfo(AOLR);
-    set(AOLR, 'SampleRate', 44100);
     addchannel(AOLR, 0:30);
 
     dio = digitalio('nidaq', 'PXI1Slot3');
@@ -105,10 +106,12 @@ for option = 1:4
     set(AOLR, 'TriggerType', 'Manual');
 
     AOLR.SampleRate = 44100; %%% this could be a repetition of `set(AOLR, 'SampleRate', 44100);` %%%
+    set(AOLR, 'SampleRate', 44100);
 
     % ----------------------------------------------------------------------------------------------
 
     %% load chunk audio files
+
     fileNamesList = {};
     soundArray = {};
 
@@ -192,57 +195,65 @@ for option = 1:4
     % build a corresponding matrix for speaker idx and sound idx:
     % - first raw for the speaker
     % - second raw for the sounds/audio
-    seq_CH = [speakerIdx; soundIdx];
+    speakerSoundCoulpe = [speakerIdx; soundIdx];
 
-    wav_length = 0;
+    % take the length (in sample rate) of the first chunkns as reference (probably not ideal)
+    soundChunkLength = length(soundArray{speakerSoundCoulpe(2, 1)});
 
-    for ch = 1:size(seq_CH, 2)
+    % pre-allocate space to the matrix to be feeded to the NI analog card
+    data = zeros(soundChunkLength, nbSpeakers);
+    startPoint = 0;
+    endPoint = 0;
 
-        wav_length = length(soundArray{seq_CH(2, ch)});
+    % make wav matrix with gaps and sounds and designated speakers
+    for iSpeaker = 1:length(speakerIdx)
 
-    end
-
-    data = [];
-    data = zeros(wav_length, nbSpeakers); % zeros(righe,4) %out_AO.TotalChannels
-    iniz = 0;
-    fin = 0;
-
-    for j = 1:length(speakerIdx)
-        ch = speakerIdx(j);
-        so = soundIdx(j);
-
-        if mod(j, nbSpeakers) == 0 % not give gap beside between 2 directions.
+        % add a gap of silce between forth and back
+        if mod(iSpeaker, nbSpeakers) == 0
             gap = gap_init;
         else
             gap = 0.0;
         end
 
-        iniz = fin + 1;
-        fin = iniz + length(soundArray{soundIdx(j)}) - 1 + gap;
-        data(iniz:(fin - gap), speakerIdx(j)) = amp * soundArray{soundIdx(j)};   % *2 looks like amplifier here
+        % build the final matrix to play at once `data(time, speakerIdx)`
+        startPoint = endPoint + 1;
+
+        endPoint = startPoint + length(soundArray{soundIdx(iSpeaker)}) - 1 + gap;
+
+        data(startPoint:(endPoint - gap), speakerIdx(iSpeaker)) = amp * soundArray{soundIdx(iSpeaker)};   % *2 looks like amplifier here
+
     end
 
-    % figure;imagesc(data) % GRAPH of the speaker order
+    % GRAPH of the speaker order
+    % x: spkeare idx;
+    % y: time in descending order
+    % figure;
+    % imagesc(data)
+
     dur = size(data, 1) / 44100; % in sec
-    %% START
-    putdata(AOLR, data); % to queue the obj
-    % Start AO, issue a manual trigger, and wait for
-    % the device object to stop running.
 
+    %% feed the matrix sound into the NI analog card and play it
+
+    % queue the NI analog card job
+    putdata(AOLR, data);
+
+    % start AO, issue a manual trigger, and wait for the device object to stop running
     start(AOLR);
-    % pause(1) %when to start exp
+
     trigger(AOLR);
-    % stop(AO) terminates the execution
 
-    wait(AOLR, dur + 1); % wait before doing anything else
+    wait(AOLR, dur + 1);
 
+    % clear all the variables to make space
     delete(dio);
     clear dio;
 
     delete(AOLR);
     clear AO;
 
+    % wait some time in between arms
     WaitSecs(IMI);
 
 end
+
 toc;
