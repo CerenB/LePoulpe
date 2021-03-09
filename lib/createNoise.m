@@ -1,17 +1,28 @@
-function [outSound] = createNoise(whichNoise, fs, duration, saveAsWav)
+function [outSound] = createNoise(whichNoise, duration, saveAsWav, fs)
 
-% whichNoise - indicate which type of sound user wants. Options are white,
-% pink, brown and pure. has to be lower case input. 
-% fs - sampling rate 
-% duration - length of the audio file in seconds
-% saveToWav - boolean for saving into .wav files or keeping them as array.
+% create pink, white, brown noise with a given duration and sampling rate. 
+% Then they can be saved as separate `.wav` files or in a array as output
+%
+% USAGE::
+%
+%   [argout1] = createNoise(whichNoise == 'white', duration == 0.5, saveAsWav == 0, fs == 44100)
+%
+% :param whichNoise: type of noise (e.g. white, pink, brown)
+% :type argin1: string
+% :param duration: duration of the sound
+% :type argin1: integer
+% :param saveAsWav: boolean to save the audio  as .wav files in a subfolder where
+% input audio file is
+% :param fs: sampling rate of the sound
+% :type argin1: integer
+%
+% :returns: - :outSound: (array) an array with the audio ready to be used
 
 typeNoise = whichNoise;
 
 cfg.fs = fs ;
 cfg.stimDuration = duration;
-
-amp = 0.95;
+cfg.amp = 0.95;
 
 %% ramping
 % onset ramp duration  _/
@@ -37,12 +48,13 @@ end
  
 if saveAsWav
     
-    outputPath = addpath(fullfile(fileparts(mfilename('fullpath')), '..',...
-                        'inputSounds'));
-    outputFileName = [outputPath,num2str(cfg.stimDuration*1000),'ms', ...
-    typeNoise, 'noise.wav'];
+    outputPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
+                        'inputSounds');
+    outputFileName = [num2str(cfg.stimDuration*1000),'ms_', ...
+                     typeNoise, 'noise_',...
+                     'ramp',num2str(cfg.eventRampon*1000),'ms.wav'];
 
-    audiowrite(outputFileName, ...
+    audiowrite(fullfile(outputPath,outputFileName), ...
         outSound, ...
         cfg.fs);
     
@@ -62,35 +74,15 @@ outSound = outSound/max(outSound);
 outSound = applyRamp(outSound,cfg);
 
 % apply amp to avoid chirping 
-outSound = amp .* outSound;
+outSound = cfg.amp .* outSound;
 
-% listen
+%%listen
 % clear sound
 % sound(outSound,cfg.fs)
 
 
 end
-  
-function outSound = applyRamp(outSound,cfg)
 
-
-  % number of samples for the onset ramp (proportion of gridIOI)
-  ramponSamples   = round(cfg.eventRampon * cfg.fs);
-
-  % number of samples for the offset ramp (proportion of gridIOI)
-  rampoffSamples  = round(cfg.eventRampoff * cfg.fs);
-
-  % individual sound event duration defined as proportion of gridIOI
-  envEvent = ones(1, round(cfg.stimDuration * cfg.fs));
-
-  % make the linear ramps
-  envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0, 1, ramponSamples);
-  envEvent(end - rampoffSamples + 1:end) = envEvent(end - rampoffSamples + 1:end) .* linspace(1, 0, rampoffSamples);
-  
-  % apply the ramp onto the sound
-  outSound = outSound .* envEvent;
-  
-end  
 
 function outSound = makePinkNoise(cfg)
 
@@ -110,6 +102,11 @@ end
 %filter the white noise
 outSound = filter(1, pinkFilter, outSound);
 
+% apply ramp
+outSound = applyRamp(outSound,cfg);
+
+% apply amp to avoid chirping 
+outSound = cfg.amp .* outSound;
 
 end
 
@@ -133,6 +130,35 @@ end
 %filter the white noise
 outSound = filter(1, brownFilter, outSound);
 
+% apply ramp
+outSound = applyRamp(outSound,cfg);
+
+% apply amp to avoid chirping 
+outSound = cfg.amp .* outSound;
+
 end
+
+  
+function outSound = applyRamp(outSound,cfg)
+
+  % number of samples for the onset ramp (proportion of gridIOI)
+  ramponSamples   = round(cfg.eventRampon * cfg.fs);
+
+  % number of samples for the offset ramp (proportion of gridIOI)
+  rampoffSamples  = round(cfg.eventRampoff * cfg.fs);
+
+  % individual sound event duration defined as proportion of gridIOI
+  envEvent = ones(1, round(cfg.stimDuration * cfg.fs));
+
+  % make the linear ramps
+  envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0, 1, ramponSamples);
+  envEvent(end - rampoffSamples + 1:end) = envEvent(end - rampoffSamples + 1:end) .* linspace(1, 0, rampoffSamples);
+  
+  % apply the ramp onto the sound
+  outSound = outSound .* envEvent;
+  
+end  
+
+
 
 
