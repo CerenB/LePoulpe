@@ -22,9 +22,15 @@ amp = 1;
 % set how many speakers are supposed to be played
 nbSpeakers = 31;
 
+% set sample rate
+sampleRate = 44100;
+
+% pause in between motion sounds (Inter Motion Interval)
+IMI = 6;
+
 % sec
 gap_init = 0.25;
-gap_init = gap_init * AOLR.SampleRate;
+gap_init = gap_init * sampleRate;
 
 % map the arms with directions
 
@@ -50,7 +56,7 @@ vertCenterPlusOnetoUp = 15:-1:1;
 %  optionn 1 : right-ward direction 'long' file
 %  optionn 2 : down-ward direction 'long' file
 %  optionn 3 : right-ward direction 'short' file
-%  optionn 4 : down-ward direction 'short' file
+%  optionn 4 : down-ward direction 'long' file
 
 for option = 1:4
 
@@ -106,46 +112,94 @@ for option = 1:4
     fileNamesList = {};
     soundArray = {};
 
-    soundPath = 'sounds';
+    soundPath = fullfile(pwd, 'input');
 
     switch option
-        case 1 % EVENT RECORDINGS HORIZONTAL
-            speakerIdx = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
-            for i = 1:nbSpeakers
-                fileNamesList{i} = fullfile(soundPath, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
-                [soundArray{i}, ~] = audioread(fileNamesList{i});
+
+        % event recordings horizontal leftward + rightward
+        case 1
+
+            % set the speaker idx to be played in sequence
+            speakerIdx = [ horLeftToCenterMinusOne horCenter horCenterPlusOneToRight ...
+                           horRightToCenterMinusOne horCenter horCenterPlusOneToLeft ];
+
+            % load the audio files in an array
+            for iSound = 1:nbSpeakers
+
+                fileNamesList{iSound} = fullfile(soundPath, ...
+                                            'cut_nbSpeakers-31_1300_pn_25speaker_event', ...
+                                            ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
+
+                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+
             end
 
-        case 2 % EVENT RECORDINGS VERT
-            speakerIdx = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
-            for i = 1:nbSpeakers
-                fileNamesList{i} = fullfile(soundPath, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
-                [soundArray{i}, ~] = audioread(fileNamesList{i});
+        % event recordings vertical downward + upward
+        case 2
+
+            speakerIdx = [ vertUptoCenterMinusOne verCenter vertCenterPlusOneToDown ...
+                           vertDownToCenterMinusOne verCenter vertCenterPlusOnetoUp ];
+
+            for iSound = 1:nbSpeakers
+
+                fileNamesList{iSound} = fullfile(soundPath, ...
+                                            'cut_nbSpeakers-31_1300_pn_25speakers_event', ...
+                                            ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
+
+                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+
             end
 
-        case 3 % TARGET RECORDINGS HORIZONTAL
-            speakerIdx = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
-            for i = 1:nbSpeakers
-                fileNamesList{i} = fullfile(soundPath, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
-                [soundArray{i}, ~] = audioread(fileNamesList{i});
+        % target recordings horizontal leftward + rightward
+        case 3
+
+            speakerIdx = [ horLeftToCenterMinusOne horCenter horCenterPlusOneToRight ...
+                           horRightToCenterMinusOne horCenter horCenterPlusOneToLeft ];
+
+            for iSound = 1:nbSpeakers
+
+                fileNamesList{iSound} = fullfile(soundPath, ...
+                                            'cut_nbSpeakers-31_1300_pn_25speakers_target', ...
+                                            ['1300_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
+
+                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+
             end
 
-        case 4 % TARGET RECORDINGS VERT
-            speakerIdx = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
-            for i = 1:nbSpeakers
-                fileNamesList{i} = fullfile(soundPath, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
-                [soundArray{i}, ~] = audioread(fileNamesList{i});
+        % target recordings vertical downward + upward
+        case 4
+
+            speakerIdx = [ vertUptoCenterMinusOne verCenter vertCenterPlusOneToDown ...
+                           vertDownToCenterMinusOne verCenter vertCenterPlusOnetoUp ];
+
+            for iSound = 1:nbSpeakers
+
+                fileNamesList{iSound} = fullfile(soundPath, ...
+                                            'cut_nbSpeakers-31_1300_pn_25speakers_target', ...
+                                            ['1300_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
+
+                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+
             end
+
     end
-    %%
 
+    %% prepare the sound to be loaded in the NI analog card
+
+    % set the sound idx to be played in sequence
     soundIdx = repmat(1:nbSpeakers, [1 2]);
 
-    seq_CH = [speakerIdx; soundIdx]; % first raw for the speaker, second raw for the sounds/audio
+    % build a corresponding matrix for speaker idx and sound idx:
+    % - first raw for the speaker
+    % - second raw for the sounds/audio
+    seq_CH = [speakerIdx; soundIdx];
 
     wav_length = 0;
+
     for ch = 1:size(seq_CH, 2)
+
         wav_length = length(soundArray{seq_CH(2, ch)});
+
     end
 
     data = [];
@@ -188,7 +242,7 @@ for option = 1:4
     delete(AOLR);
     clear AO;
 
-    WaitSecs(0.5);
+    WaitSecs(IMI);
 
 end
 toc;
