@@ -141,13 +141,13 @@ end
   
 function outSound = applyRamp(outSound,cfg)
 
-  % number of samples for the onset ramp (proportion of gridIOI)
+  % number of samples for the onset ramp
   ramponSamples   = round(cfg.eventRampon * cfg.fs);
 
-  % number of samples for the offset ramp (proportion of gridIOI)
+  % number of samples for the offset ramp
   rampoffSamples  = round(cfg.eventRampoff * cfg.fs);
 
-  % individual sound event duration defined as proportion of gridIOI
+  % individual sound event duration 
   envEvent = ones(1, round(cfg.stimDuration * cfg.fs));
 
   % make the linear ramps
