@@ -19,13 +19,38 @@ WaitSecs(5);
 % set sound intensity
 amp = 1;
 
-tic;
+% set how many speakers are supposed to be played
+nbSpeakers = 31;
+
+% sec
+gap_init = 0.25;
+gap_init = gap_init * AOLR.SampleRate;
+
+% map the arms with directions
+
+% horizontal
+horCenter = 31;
+% rightward
+horLeftToCenterMinusOne = 1:15;
+horCenterPlusOneToRight = 30:-1:16;
+% leftward
+horRightToCenterMinusOne = 16:30;
+horCenterPlusOneToLeft = 15:-1:1;
+
+% vertical
+vertCenter = 31;
+% downward
+vertUptoCenterMinusOne = 1:15;
+vertCenterPlusOneToDown = 30:-1:16;
+% upward
+vertDownToCenterMinusOne = 16:30;
+vertCenterPlusOnetoUp = 15:-1:1;
 
 % this loop plays:
 %  optionn 1 : right-ward direction 'long' file
 %  optionn 2 : down-ward direction 'long' file
 %  optionn 3 : right-ward direction 'short' file
-%  optionn 4 : down-ward direction 'long' file
+%  optionn 4 : down-ward direction 'short' file
 
 for option = 1:4
 
@@ -73,82 +98,74 @@ for option = 1:4
     setverify(AOLR.Channel, 'UnitsRange', [-5 5]);
     set(AOLR, 'TriggerType', 'Manual');
 
+    AOLR.SampleRate = 44100; %%% this could be a repetition of `set(AOLR, 'SampleRate', 44100);` %%%
+
     % ----------------------------------------------------------------------------------------------
 
     %% load chunk audio files
-    addpath(genpath(pwd)); %%% better to avoid this and proivide absolout path
+    fileNamesList = {};
+    soundArray = {};
 
-
-    files_sound = {};
-    array_sound = {};
-
-    totspeaker = 31;
-
-    gap_init = 0.25; % sec
-    AOLR.SampleRate = 44100;
-    gap_init = gap_init * AOLR.SampleRate;
-
-    %%
-    nspeaker = 31;
-    chosen_sound = repmat(1:nspeaker, [1 2]);
-
-    pathname = 'sounds';
+    soundPath = 'sounds';
 
     switch option
         case 1 % EVENT RECORDINGS HORIZONTAL
-            array_speaker = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
-            for i = 1:nspeaker
-                files_sound{i} = fullfile(pathname, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
-                [array_sound{i}, ~] = audioread(files_sound{i});
+            speakerIdx = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
+            for i = 1:nbSpeakers
+                fileNamesList{i} = fullfile(soundPath, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
+                [soundArray{i}, ~] = audioread(fileNamesList{i});
             end
 
         case 2 % EVENT RECORDINGS VERT
-            array_speaker = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
-            for i = 1:nspeaker
-                files_sound{i} = fullfile(pathname, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
-                [array_sound{i}, ~] = audioread(files_sound{i});
+            speakerIdx = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
+            for i = 1:nbSpeakers
+                fileNamesList{i} = fullfile(soundPath, strcat(['pn_event_speak', num2str(i), '_31.wav'])); % 2s
+                [soundArray{i}, ~] = audioread(fileNamesList{i});
             end
 
         case 3 % TARGET RECORDINGS HORIZONTAL
-            array_speaker = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
-            for i = 1:nspeaker
-                files_sound{i} = fullfile(pathname, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
-                [array_sound{i}, ~] = audioread(files_sound{i});
+            speakerIdx = [1:15 31 16 17 valueSpeakerHor 19:30 30:-1:19 valueSpeakerHor 17 16 31 15:-1:1];
+            for i = 1:nbSpeakers
+                fileNamesList{i} = fullfile(soundPath, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
+                [soundArray{i}, ~] = audioread(fileNamesList{i});
             end
 
         case 4 % TARGET RECORDINGS VERT
-            array_speaker = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
-            for i = 1:nspeaker
-                files_sound{i} = fullfile(pathname, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
-                [array_sound{i}, ~] = audioread(files_sound{i});
+            speakerIdx = [1:15 31 valueSpeakerVert 29:-1:16 16:29 valueSpeakerVert 31 15:-1:1];
+            for i = 1:nbSpeakers
+                fileNamesList{i} = fullfile(soundPath, strcat(['pn_target_speak', num2str(i), '_31.wav'])); % 2s
+                [soundArray{i}, ~] = audioread(fileNamesList{i});
             end
     end
     %%
-    seq_CH = [array_speaker; chosen_sound]; % first raw for the speaker, second raw for the sounds/audio
+
+    soundIdx = repmat(1:nbSpeakers, [1 2]);
+
+    seq_CH = [speakerIdx; soundIdx]; % first raw for the speaker, second raw for the sounds/audio
 
     wav_length = 0;
     for ch = 1:size(seq_CH, 2)
-        wav_length = length(array_sound{seq_CH(2, ch)});
+        wav_length = length(soundArray{seq_CH(2, ch)});
     end
 
     data = [];
-    data = zeros(wav_length, totspeaker); % zeros(righe,4) %out_AO.TotalChannels
+    data = zeros(wav_length, nbSpeakers); % zeros(righe,4) %out_AO.TotalChannels
     iniz = 0;
     fin = 0;
 
-    for j = 1:length(array_speaker)
-        ch = array_speaker(j);
-        so = chosen_sound(j);
+    for j = 1:length(speakerIdx)
+        ch = speakerIdx(j);
+        so = soundIdx(j);
 
-        if mod(j, nspeaker) == 0 % not give gap beside between 2 directions.
+        if mod(j, nbSpeakers) == 0 % not give gap beside between 2 directions.
             gap = gap_init;
         else
             gap = 0.0;
         end
 
         iniz = fin + 1;
-        fin = iniz + length(array_sound{chosen_sound(j)}) - 1 + gap;
-        data(iniz:(fin - gap), array_speaker(j)) = amp * array_sound{chosen_sound(j)};   % *2 looks like amplifier here
+        fin = iniz + length(soundArray{soundIdx(j)}) - 1 + gap;
+        data(iniz:(fin - gap), speakerIdx(j)) = amp * soundArray{soundIdx(j)};   % *2 looks like amplifier here
     end
 
     % figure;imagesc(data) % GRAPH of the speaker order
