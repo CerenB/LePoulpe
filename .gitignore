@@ -1,3 +1,5 @@
 # ignore autosaved file in matlab
 *.m~
 *.wav
+
+.DS_Store
