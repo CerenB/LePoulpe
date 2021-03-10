@@ -16,6 +16,7 @@ pacedByUser = true;
 waitForAWhile = 0;
 
 
+%% prepare sounds to be played
 fs = 44100;
 saveAsWav = 1;
 duration = 5.2;
@@ -26,13 +27,34 @@ outSound = generateNoise('pink', duration, saveAsWav, fs);
 
 nbSpeakers = 31;
 saveAsWav = 0;
+
 % [soundArray] = cutSoundArray(inputSound, inputName, fs, nbSpeakers, saveAsWav);
 [soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
 
 
-%playMotion(plane, arraySpeakers, soundArray, nbRepetition);
+% build the speaker arrays for each direction
+speakerIdxRightward = generateMotionSpeakerArray('rightward')
 
+speakerIdxLeftward = generateMotionSpeakerArray('leftward')
 
+speakerIdxDownward = generateMotionSpeakerArray('downward')
+
+speakerIdxUpward = generateMotionSpeakerArray('upward')
+
+%% play sounds (auditory motion)
+
+playMotionSound(axis, ...
+                speakerIdx, ...
+                soundArray, ...
+                nbRepetition);
+
+playMotionSound(axis, ...
+                speakerIdx, ...
+                soundArray, ...
+                nbRepetition)
+                
+ 
+ %% play LEDs (visual motion)
 pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
 
 
@@ -67,7 +89,6 @@ playMotionVisual('upward', ...
                  0.0170, ...
                  1, ...
                  1)
-
 
 
 
