@@ -8,7 +8,29 @@
 % vertical), and plays them in a given number of repetitions
 
 % if the suer control is needed, please provide that. Otherwise it loops
+
 % through the repetitions with 5s wait time.
+
+pacedByUser = true;
+
+waitForAWhile = 0;
+
+
+%% prepare sounds to be played
+fs = 44100;
+saveAsWav = 1;
+duration = 5.2;
+
+% outSound = generateNoise('white', duration, saveAsWav, fs);
+outSound = generateNoise('pink', duration, saveAsWav, fs);
+
+
+nbSpeakers = 31;
+saveAsWav = 0;
+
+% [soundArray] = cutSoundArray(inputSound, inputName, fs, nbSpeakers, saveAsWav);
+[soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
+
 
 % build the speaker arrays for each direction
 speakerIdxRightward = generateMotionSpeakerArray('rightward')
@@ -19,10 +41,7 @@ speakerIdxDownward = generateMotionSpeakerArray('downward')
 
 speakerIdxUpward = generateMotionSpeakerArray('upward')
 
-% generateNoise
-
-% cutSound
-
+%% play sounds (auditory motion)
 
 playMotionSound(axis, ...
                 speakerIdx, ...
@@ -33,3 +52,43 @@ playMotionSound(axis, ...
                 speakerIdx, ...
                 soundArray, ...
                 nbRepetition)
+                
+ 
+ %% play LEDs (visual motion)
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+
+playMotionVisual('rightward', ...
+                 0.0170, ...
+                 2, ...
+                 1);
+
+
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+
+playMotionVisual('leftward', ...
+                 0.0170, ...
+                 2, ...
+                 1)
+
+
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+
+playMotionVisual('downward', ...
+                 0.0170, ...
+                 1, ...
+                 1)
+
+
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+
+playMotionVisual('upward', ...
+                 0.0170, ...
+                 1, ...
+                 1)
+
+
+
