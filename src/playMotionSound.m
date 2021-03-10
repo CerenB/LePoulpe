@@ -25,32 +25,9 @@ nbSpeakers = 31;
 % set sample rate
 sampleRate = 44100;
 
-% pause in between motion sounds (Inter Motion Interval)
-IMI = 1;
-
 % sec
 gap_init = 0.25;
 gap_init = gap_init * sampleRate;
-
-% map the arms with directions
-
-% horizontal
-horCenter = 31;
-% rightward
-horLeftToCenterMinusOne = 1:15;
-horCenterPlusOneToRight = 30:-1:16;
-% leftward
-horRightToCenterMinusOne = 16:30;
-horCenterPlusOneToLeft = 15:-1:1;
-
-% vertical
-vertCenter = 31;
-% downward
-vertUptoCenterMinusOne = 1:15;
-vertCenterPlusOneToDown = 30:-1:16;
-% upward
-vertDownToCenterMinusOne = 16:30;
-vertCenterPlusOnetoUp = 15:-1:1;
 
 % this loop plays:
 %  optionn 1 : right-ward direction 'long' file
@@ -251,7 +228,5 @@ for option = 1:4
   delete(AOLR);
   clear AO;
 
-  % wait some time in between arms
-  WaitSecs(IMI);
 
 end
