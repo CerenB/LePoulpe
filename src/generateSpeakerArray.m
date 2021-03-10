@@ -1,6 +1,6 @@
 % (C) Copyright 2021 CPP LePoulpe developers
 
-function speakerIdx = generateMotionnDirecetionSpeakerArray(input)
+function speakerIdx = generateMotionSpeakerArray(input)
 
   % map the arms with directions
 

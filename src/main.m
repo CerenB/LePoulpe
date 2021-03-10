@@ -11,13 +11,13 @@
 % through the repetitions with 5s wait time.
 
 % build the speaker arrays for each direction
-speakerIdxRightward = generateMotionnDirecetionSpeakerArray('rightward')
+speakerIdxRightward = generateMotionSpeakerArray('rightward')
 
-speakerIdxLeftward = generateMotionnDirecetionSpeakerArray('leftward')
+speakerIdxLeftward = generateMotionSpeakerArray('leftward')
 
-speakerIdxDownward = generateMotionnDirecetionSpeakerArray('downward')
+speakerIdxDownward = generateMotionSpeakerArray('downward')
 
-speakerIdxUpward = generateMotionnDirecetionSpeakerArray('upward')
+speakerIdxUpward = generateMotionSpeakerArray('upward')
 
 % generateNoise
 
