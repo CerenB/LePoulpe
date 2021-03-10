@@ -1,7 +1,7 @@
 % (C) Copyright 2017 Stephanie Cattoir
 % (C) Copyright 2021 CPP LePoulpe developers
 
-function [soundChunks] = cutSounds(nbSpeakers, saveAsWav)
+function [soundArray] = cutWavFiles(nbSpeakers, saveAsWav)
 
 % Cut a long file audio in x nb of chunks corresponding to the nb spekears in which it will be
 % played. Then they can be saved as separate `.wav` files or in a structure as output
@@ -16,9 +16,8 @@ function [soundChunks] = cutSounds(nbSpeakers, saveAsWav)
 % input audio file is
 %
 % :returns: - :soundChunks: (matrix) (nbSpeakers, x) a matrix with the audio chunks ready to be used
-
-% directory with this script becomes the current directory
-WD = fileparts(mfilename('fullpath'));
+inputPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
+                        'inputSounds');
 
 % set defautks
 if isempty(saveAsWav)
@@ -27,8 +26,6 @@ if isempty(saveAsWav)
 
 end
 
-% get the path of the audio files
-inputPath = fullfile(WD, 'input');
 
 % get the files to cut
 filesToCut = dir([inputPath '/*.wav']);
@@ -59,7 +56,7 @@ for iFile = 1:length(filesToCut)
     nbSamplePerSpeaker = floor(sampleRate / (1 / (audioLength / nbSpeakers)));
 
     % pre-allocate space in the output matrix
-    soundChunks = zeros(nbSpeakers, nbSamplePerSpeaker);
+    soundArray = zeros(nbSpeakers, nbSamplePerSpeaker);
 
     % get the index on the chunks and solve an issue that could happen if the last inndex correspond
     % to the length of the audio file
@@ -76,7 +73,7 @@ for iFile = 1:length(filesToCut)
     % loop thruogh the audiofiles, extract each chunk and save as `*.wav` if necessary
     for iSpeaker = 1:nbSpeakers
 
-        soundChunks(iSpeaker,:) = audio(startIdx(iSpeaker):endIdx(iSpeaker));
+        soundArray(iSpeaker,:) = audio(startIdx(iSpeaker):endIdx(iSpeaker));
 
         if saveAsWav
 
@@ -84,7 +81,7 @@ for iFile = 1:length(filesToCut)
                 [fileName '_speaker-' num2str(iSpeaker) '.wav']);
 
             audiowrite(fileChunkName, ...
-                soundChunks(iSpeaker, :), ...
+                soundArray(iSpeaker, :), ...
                 sampleRate);
 
         end
