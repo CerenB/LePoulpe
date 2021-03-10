@@ -104,6 +104,9 @@ outSound = filter(1, pinkFilter, outSound);
 % apply ramp
 outSound = applyRamp(outSound,cfg);
 
+% limit amplitude to [-1 to 1] aka normalize again
+outSound = outSound/max(outSound);
+
 % apply amp to avoid chirping 
 outSound = cfg.amp .* outSound;
 
@@ -131,6 +134,9 @@ outSound = filter(1, brownFilter, outSound);
 
 % apply ramp
 outSound = applyRamp(outSound,cfg);
+
+% limit amplitude to [-1 to 1] aka normalize again
+outSound = outSound/max(outSound);
 
 % apply amp to avoid chirping 
 outSound = cfg.amp .* outSound;
