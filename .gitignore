@@ -1,2 +1,3 @@
 # ignore autosaved file in matlab
 *.m~
+*.wav
