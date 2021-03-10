@@ -60,199 +60,200 @@ vertCenterPlusOnetoUp = 15:-1:1;
 
 for option = 1:4
 
-    switch option
+  switch option
 
-        % name: NI analog card slot
-        % value: make the switch between arms (0 = horizontal ; 1 = vertical)
+    % name: NI analog card slot
+    % value: make the switch between arms (0 = horizontal ; 1 = vertical)
 
-        % EVENT HORIZONTAL
-        case 1
-            name = 'PXI1Slot2';
-            value = 0;
+    % EVENT HORIZONTAL
+    case 1
+      name = 'PXI1Slot2';
+      value = 0;
 
-        % EVENT VERTICAL
-        case 2
-            name = 'PXI1Slot3';
-            value = 1;
+      % EVENT VERTICAL
+    case 2
+      name = 'PXI1Slot3';
+      value = 1;
 
-        % TARGET HORIZONTAL
-        case 3
-            name = 'PXI1Slot2';
-            value = 0;
+      % TARGET HORIZONTAL
+    case 3
+      name = 'PXI1Slot2';
+      value = 0;
 
-        % TARGET VERTICAL
-        case 4
-            name = 'PXI1Slot3';
-            value = 1;
+      % TARGET VERTICAL
+    case 4
+      name = 'PXI1Slot3';
+      value = 1;
 
-    end
+  end
 
-    % -------------------------------------- HELP NEEDED HERE --------------------------------------
+  % -------------------------------------- HELP NEEDED HERE --------------------------------------
 
-    %% init the NI analog card
+  %% init the NI analog card
 
-    AOLR = analogoutput('nidaq', name);
-    out_AO = daqhwinfo(AOLR);
-    addchannel(AOLR, 0:30);
+  AOLR = analogoutput('nidaq', name);
+  out_AO = daqhwinfo(AOLR);
+  addchannel(AOLR, 0:30);
 
-    dio = digitalio('nidaq', 'PXI1Slot3');
-    addline (dio, 0:7, 'out');
-    putvalue(dio.Line(1), value);
+  dio = digitalio('nidaq', 'PXI1Slot3');
+  addline (dio, 0:7, 'out');
+  putvalue(dio.Line(1), value);
 
-    % AnalogLeftRight
-    out_ranges = get(AOLR.Channel, 'OutputRange'); %%% this seems to be unused %%%
-    setverify(AOLR.Channel, 'OutputRange', [-5 5]);
-    setverify(AOLR.Channel, 'UnitsRange', [-5 5]);
-    set(AOLR, 'TriggerType', 'Manual');
+  % AnalogLeftRight
+  out_ranges = get(AOLR.Channel, 'OutputRange'); %%% this seems to be unused %%%
+  setverify(AOLR.Channel, 'OutputRange', [-5 5]);
+  setverify(AOLR.Channel, 'UnitsRange', [-5 5]);
+  set(AOLR, 'TriggerType', 'Manual');
 
-    AOLR.SampleRate = 44100; %%% this could be a repetition of `set(AOLR, 'SampleRate', 44100);` %%%
-    set(AOLR, 'SampleRate', 44100);
+  AOLR.SampleRate = 44100; %%% this could be a repetition of `set(AOLR, 'SampleRate', 44100);` %%%
+  set(AOLR, 'SampleRate', 44100);
 
-    % ----------------------------------------------------------------------------------------------
+  % ----------------------------------------------------------------------------------------------
 
-    %% load chunk audio files
+  %% load chunk audio files
 
-    fileNamesList = {};
-    soundArray = {};
-
-    soundPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
+  fileNamesList = {};
+  soundArray = {};
+  
+  soundPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
                         'inputSounds');
 
-    switch option
 
-        % event recordings horizontal leftward + rightward
-        case 1
+  switch option
 
-            % set the speaker idx to be played in sequence
-            speakerIdx = [ horLeftToCenterMinusOne horCenter horCenterPlusOneToRight ...
-                           horRightToCenterMinusOne horCenter horCenterPlusOneToLeft ];
+    % event recordings horizontal leftward + rightward
+    case 1
 
-            % load the audio files in an array
-            for iSound = 1:nbSpeakers
+      % set the speaker idx to be played in sequence
+      speakerIdx = [horLeftToCenterMinusOne horCenter horCenterPlusOneToRight ...
+                    horRightToCenterMinusOne horCenter horCenterPlusOneToLeft];
 
-                fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_1300_pn_25speaker_event', ...
-                                            ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
+      % load the audio files in an array
+      for iSound = 1:nbSpeakers
 
-                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+        fileNamesList{iSound} = fullfile(soundPath, ...
+                                         'cut_nbSpeakers-31_1300_pn_25speaker_event', ...
+                                         ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
 
-            end
+        [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
 
-        % event recordings vertical downward + upward
-        case 2
+      end
 
-            speakerIdx = [ vertUptoCenterMinusOne vertCenter vertCenterPlusOneToDown ...
-                           vertDownToCenterMinusOne vertCenter vertCenterPlusOnetoUp ];
+      % event recordings vertical downward + upward
+    case 2
 
-            for iSound = 1:nbSpeakers
+      speakerIdx = [vertUptoCenterMinusOne vertCenter vertCenterPlusOneToDown ...
+                    vertDownToCenterMinusOne vertCenter vertCenterPlusOnetoUp];
 
-                fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_1300_pn_25speaker_event', ...
-                                            ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
+      for iSound = 1:nbSpeakers
 
-                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+        fileNamesList{iSound} = fullfile(soundPath, ...
+                                         'cut_nbSpeakers-31_1300_pn_25speaker_event', ...
+                                         ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
 
-            end
+        [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
 
-        % target recordings horizontal leftward + rightward
-        case 3
+      end
 
-            speakerIdx = [ horLeftToCenterMinusOne horCenter horCenterPlusOneToRight ...
-                           horRightToCenterMinusOne horCenter horCenterPlusOneToLeft ];
+      % target recordings horizontal leftward + rightward
+    case 3
 
-            for iSound = 1:nbSpeakers
+      speakerIdx = [horLeftToCenterMinusOne horCenter horCenterPlusOneToRight ...
+                    horRightToCenterMinusOne horCenter horCenterPlusOneToLeft];
 
-                fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_600_pn_25speaker_target', ...
-                                            ['600_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
+      for iSound = 1:nbSpeakers
 
-                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+        fileNamesList{iSound} = fullfile(soundPath, ...
+                                         'cut_nbSpeakers-31_600_pn_25speaker_target', ...
+                                         ['600_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
 
-            end
+        [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
 
-        % target recordings vertical downward + upward
-        case 4
+      end
 
-            speakerIdx = [ vertUptoCenterMinusOne vertCenter vertCenterPlusOneToDown ...
-                           vertDownToCenterMinusOne vertCenter vertCenterPlusOnetoUp ];
+      % target recordings vertical downward + upward
+    case 4
 
-            for iSound = 1:nbSpeakers
+      speakerIdx = [vertUptoCenterMinusOne vertCenter vertCenterPlusOneToDown ...
+                    vertDownToCenterMinusOne vertCenter vertCenterPlusOnetoUp];
 
-                fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_600_pn_25speaker_target', ...
-                                            ['600_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
+      for iSound = 1:nbSpeakers
 
-                [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
+        fileNamesList{iSound} = fullfile(soundPath, ...
+                                         'cut_nbSpeakers-31_600_pn_25speaker_target', ...
+                                         ['600_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
 
-            end
+        [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
 
+      end
+
+  end
+
+  %% prepare the sound to be loaded in the NI analog card
+
+  % set the sound idx to be played in sequence
+  soundIdx = repmat(1:nbSpeakers, [1 2]);
+
+  % build a corresponding matrix for speaker idx and sound idx:
+  % - first raw for the speaker
+  % - second raw for the sounds/audio
+  speakerSoundCoulpe = [speakerIdx; soundIdx];
+
+  % take the length (in sample rate) of the first chunkns as reference (probably not ideal)
+  soundChunkLength = length(soundArray{speakerSoundCoulpe(2, 1)});
+
+  % pre-allocate space to the matrix to be feeded to the NI analog card
+  data = zeros(soundChunkLength, nbSpeakers);
+  startPoint = 0;
+  endPoint = 0;
+
+  % make wav matrix with gaps and sounds and designated speakers
+  for iSpeaker = 1:length(speakerIdx)
+
+    % add a gap of silce between forth and back
+    if mod(iSpeaker, nbSpeakers) == 0
+      gap = gap_init;
+    else
+      gap = 0.0;
     end
 
-    %% prepare the sound to be loaded in the NI analog card
+    % build the final matrix to play at once `data(time, speakerIdx)`
+    startPoint = endPoint + 1;
 
-    % set the sound idx to be played in sequence
-    soundIdx = repmat(1:nbSpeakers, [1 2]);
+    endPoint = startPoint + length(soundArray{soundIdx(iSpeaker)}) - 1 + gap;
 
-    % build a corresponding matrix for speaker idx and sound idx:
-    % - first raw for the speaker
-    % - second raw for the sounds/audio
-    speakerSoundCoulpe = [speakerIdx; soundIdx];
+    data(startPoint:(endPoint - gap), speakerIdx(iSpeaker)) = amp * soundArray{soundIdx(iSpeaker)};   % *2 looks like amplifier here
 
-    % take the length (in sample rate) of the first chunkns as reference (probably not ideal)
-    soundChunkLength = length(soundArray{speakerSoundCoulpe(2, 1)});
+  end
 
-    % pre-allocate space to the matrix to be feeded to the NI analog card
-    data = zeros(soundChunkLength, nbSpeakers);
-    startPoint = 0;
-    endPoint = 0;
+  % GRAPH of the speaker order
+  % x: spkeare idx;
+  % y: time in descending order
+  % figure;
+  % imagesc(data)
 
-    % make wav matrix with gaps and sounds and designated speakers
-    for iSpeaker = 1:length(speakerIdx)
+  dur = size(data, 1) / 44100; % in sec
 
-        % add a gap of silce between forth and back
-        if mod(iSpeaker, nbSpeakers) == 0
-            gap = gap_init;
-        else
-            gap = 0.0;
-        end
+  %% feed the matrix sound into the NI analog card and play it
 
-        % build the final matrix to play at once `data(time, speakerIdx)`
-        startPoint = endPoint + 1;
+  % queue the NI analog card job
+  putdata(AOLR, data);
 
-        endPoint = startPoint + length(soundArray{soundIdx(iSpeaker)}) - 1 + gap;
+  % start AO, issue a manual trigger, and wait for the device object to stop running
+  start(AOLR);
 
-        data(startPoint:(endPoint - gap), speakerIdx(iSpeaker)) = amp * soundArray{soundIdx(iSpeaker)};   % *2 looks like amplifier here
+  trigger(AOLR);
 
-    end
+  wait(AOLR, dur + 1);
 
-    % GRAPH of the speaker order
-    % x: spkeare idx;
-    % y: time in descending order
-    % figure;
-    % imagesc(data)
+  % clear all the variables to make space
+  delete(dio);
+  clear dio;
 
-    dur = size(data, 1) / 44100; % in sec
+  delete(AOLR);
+  clear AO;
 
-    %% feed the matrix sound into the NI analog card and play it
-
-    % queue the NI analog card job
-    putdata(AOLR, data);
-
-    % start AO, issue a manual trigger, and wait for the device object to stop running
-    start(AOLR);
-
-    trigger(AOLR);
-
-    wait(AOLR, dur + 1);
-
-    % clear all the variables to make space
-    delete(dio);
-    clear dio;
-
-    delete(AOLR);
-    clear AO;
-
-    % wait some time in between arms
-    WaitSecs(IMI);
+  % wait some time in between arms
+  WaitSecs(IMI);
 
 end

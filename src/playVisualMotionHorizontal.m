@@ -10,9 +10,8 @@
 %%% 3) comment twice the WaitSecs lines 46 and 85 (comments are: wait for the central led)
 %%% three_speeds=2*[0.0163 0.0077 0.013]; %jump of 2
 
-
 % set a vector with the speeds to display
-two_speeds = [0.0085 0.018]*2;
+two_speeds = [0.0085 0.018] * 2;
 
 % set how many times a directions should be display
 repetitions = 2;
