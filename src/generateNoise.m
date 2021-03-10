@@ -1,4 +1,4 @@
-function [outSound] = createNoise(whichNoise, duration, saveAsWav, fs)
+function [outSound] = generateNoise(whichNoise, duration, saveAsWav, fs)
 
 % create pink, white, brown noise with a given duration and sampling rate. 
 % Then they can be saved as separate `.wav` files or in a array as output
