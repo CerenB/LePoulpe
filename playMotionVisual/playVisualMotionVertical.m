@@ -20,7 +20,7 @@ repetitions = 2;
 % set the interval between LEDs to be considered
 % - +/-1 = all of them; +/-2 = 1 every thwo etc.
 % - positive = towards left; negative = towards right
-jump = [2, -2];
+jump = [1, -1];
 
 % set the order about which horizontal arm (left or right) should be considered
 % - 1:2 for leftwards; 2:-1:1 for rightwards
@@ -45,15 +45,15 @@ for iSpeed = 1:length(two_speeds)
 
         if part == 1
 
-          pin_start = 32;
+          pin_start = 1;
 
-          pin_end = 63; % 24
+          pin_end = 16; % 24
 
         elseif part == 2
 
-          pin_start = 64; % 31 if central led has to light on, 32 if not.
+          pin_start = 17; % 31 if central led has to light on, 32 if not.
 
-          pin_end = 95; % 63;
+          pin_end = 32; % 63;
 
         end
 

@@ -26,7 +26,7 @@ nbSpeakers = 31;
 sampleRate = 44100;
 
 % pause in between motion sounds (Inter Motion Interval)
-IMI = 6;
+IMI = 1;
 
 % sec
 gap_init = 0.25;
@@ -140,13 +140,13 @@ for option = 1:4
         % event recordings vertical downward + upward
         case 2
 
-            speakerIdx = [ vertUptoCenterMinusOne verCenter vertCenterPlusOneToDown ...
-                           vertDownToCenterMinusOne verCenter vertCenterPlusOnetoUp ];
+            speakerIdx = [ vertUptoCenterMinusOne vertCenter vertCenterPlusOneToDown ...
+                           vertDownToCenterMinusOne vertCenter vertCenterPlusOnetoUp ];
 
             for iSound = 1:nbSpeakers
 
                 fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_1300_pn_25speakers_event', ...
+                                            'cut_nbSpeakers-31_1300_pn_25speaker_event', ...
                                             ['1300_pn_25speaker_event_speaker-', num2str(iSound), '.wav']);
 
                 [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
@@ -162,8 +162,8 @@ for option = 1:4
             for iSound = 1:nbSpeakers
 
                 fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_1300_pn_25speakers_target', ...
-                                            ['1300_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
+                                            'cut_nbSpeakers-31_600_pn_25speaker_target', ...
+                                            ['600_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
 
                 [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
 
@@ -172,14 +172,14 @@ for option = 1:4
         % target recordings vertical downward + upward
         case 4
 
-            speakerIdx = [ vertUptoCenterMinusOne verCenter vertCenterPlusOneToDown ...
-                           vertDownToCenterMinusOne verCenter vertCenterPlusOnetoUp ];
+            speakerIdx = [ vertUptoCenterMinusOne vertCenter vertCenterPlusOneToDown ...
+                           vertDownToCenterMinusOne vertCenter vertCenterPlusOnetoUp ];
 
             for iSound = 1:nbSpeakers
 
                 fileNamesList{iSound} = fullfile(soundPath, ...
-                                            'cut_nbSpeakers-31_1300_pn_25speakers_target', ...
-                                            ['1300_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
+                                            'cut_nbSpeakers-31_600_pn_25speaker_target', ...
+                                            ['600_pn_25speaker_target_speaker-', num2str(iSound), '.wav']);
 
                 [soundArray{iSound}, ~] = audioread(fileNamesList{iSound});
 
@@ -255,5 +255,3 @@ for option = 1:4
     WaitSecs(IMI);
 
 end
-
-toc;
