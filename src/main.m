@@ -9,3 +9,18 @@
 
 % if the suer control is needed, please provide that. Otherwise it loops
 % through the repetitions with 5s wait time. 
+
+
+fs = 44100;
+saveAsWav = 1;
+duration = 1.2;
+
+% outSound = generateNoise('white', duration, saveAsWav, fs);
+outSound = generateNoise('pink', duration, saveAsWav, fs);
+
+
+% [soundArray] = cutSoundArray(inputSound, fs, nbSpeakers, saveAsWav);
+[soundArray] = cutSoundArray(outSound, fs, 31, 0);
+
+
+playMotion(plane, arraySpeakers, soundArray, nbRepetition);
