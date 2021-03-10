@@ -8,6 +8,7 @@
 % vertical), and plays them in a given number of repetitions
 
 % if the suer control is needed, please provide that. Otherwise it loops
+
 % through the repetitions with 5s wait time.
 
 pacedByUser = true;
@@ -15,28 +16,21 @@ pacedByUser = true;
 waitForAWhile = 0;
 
 
+fs = 44100;
+saveAsWav = 1;
+duration = 5.2;
+
+% outSound = generateNoise('white', duration, saveAsWav, fs);
+outSound = generateNoise('pink', duration, saveAsWav, fs);
 
 
+nbSpeakers = 31;
+saveAsWav = 0;
+% [soundArray] = cutSoundArray(inputSound, inputName, fs, nbSpeakers, saveAsWav);
+[soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%playMotion(plane, arraySpeakers, soundArray, nbRepetition);
 
 
 pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
@@ -73,3 +67,7 @@ playMotionVisual('upward', ...
                  0.0170, ...
                  1, ...
                  1)
+
+
+
+
