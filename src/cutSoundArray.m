@@ -1,7 +1,7 @@
 % (C) Copyright 2017 Stephanie Cattoir
 % (C) Copyright 2021 CPP LePoulpe developers
 
-function [soundArray] = cutSoundArray(inputSound, fs, nbSpeakers, saveAsWav)
+function [soundArray] = cutSoundArray(inputSound, inputName, sampleRate, nbSpeakers, saveAsWav)
 
 % Cut a long file audio in x nb of chunks corresponding to the nb spekears in which it will be
 % played. Then they can be saved as separate `.wav` files or in a structure as output
@@ -16,7 +16,8 @@ function [soundArray] = cutSoundArray(inputSound, fs, nbSpeakers, saveAsWav)
 % input audio file is
 %
 % :returns: - :soundChunks: (matrix) (nbSpeakers, x) a matrix with the audio chunks ready to be used
-
+outputPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
+                        'inputSounds');
 
 
 % set default
@@ -34,32 +35,33 @@ audioLength = length(inputSound)/sampleRate;
 nbSamplePerSpeaker = floor(sampleRate / (1 / (audioLength / nbSpeakers)));
 
 % pre-allocate space in the output matrix
-soundArray = zeros(nbSpeakers, nbSamplePerSpeaker);
+soundArray = cell(1, nbSpeakers);
 
 % get the index on the chunks and solve an issue that could happen if the last inndex correspond
 % to the length of the audio file
-startIdx = 1:(nbSamplePerSpeaker):(length(audio) - nbSamplePerSpeaker);
+startIdx = 1:(nbSamplePerSpeaker):(length(inputSound) - nbSamplePerSpeaker);
 
-endIdx = nbSamplePerSpeaker:nbSamplePerSpeaker:length(audio);
+endIdx = nbSamplePerSpeaker:nbSamplePerSpeaker:length(inputSound);
 
 if length(startIdx) ~= length(endIdx)
     
-    startIdx(end+1) = (length(audio) - nbSamplePerSpeaker) + 1; %#ok<*AGROW>
+    startIdx(end+1) = (length(inputSound) - nbSamplePerSpeaker) + 1; %#ok<*AGROW>
     
 end
 
-% loop thruogh the audiofiles, extract each chunk and save as `*.wav` if necessary
+% loop through the audiofiles, extract each chunk and save as `*.wav` if necessary
 for iSpeaker = 1:nbSpeakers
     
-    soundArray(iSpeaker,:) = audio(startIdx(iSpeaker):endIdx(iSpeaker));
+    soundArray{iSpeaker} = inputSound(startIdx(iSpeaker):endIdx(iSpeaker))';
     
     if saveAsWav
         
         fileChunkName = fullfile(outputPath, ...
-            [fileName '_speaker-' num2str(iSpeaker) '.wav']);
+            [inputName, num2str(audioLength*1000), ...
+            'ms_speaker-' num2str(iSpeaker) '.wav']);
         
         audiowrite(fileChunkName, ...
-            soundArray(iSpeaker, :), ...
+            soundArray{iSpeaker}, ...
             sampleRate);
         
     end
