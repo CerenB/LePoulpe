@@ -114,8 +114,10 @@ for option = 1:4
 
   fileNamesList = {};
   soundArray = {};
+  
+  soundPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
+                        'inputSounds');
 
-  soundPath = fullfile(pwd, 'input');
 
   switch option
 
