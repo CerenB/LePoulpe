@@ -55,8 +55,9 @@ for iFile = 1:length(filesToCut)
     % number of samples in a segment
     nbSamplePerSpeaker = floor(sampleRate / (1 / (audioLength / nbSpeakers)));
 
-    % pre-allocate space in the output matrix
+    % pre-allocate space in the output cell
     soundArray = cell(1,nbSpeakers);
+    soundArray = cellfun(@(x) zeros(nbSamplePerSpeaker,1), soundArray, 'uni',0);
 
     % get the index on the chunks and solve an issue that could happen if the last inndex correspond
     % to the length of the audio file
