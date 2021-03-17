@@ -22,9 +22,9 @@ outputPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
 
 % set default
 if isempty(saveAsWav)
-    
+
     saveAsWav = 0;
-    
+
 end
 
 
@@ -44,28 +44,28 @@ startIdx = 1:(nbSamplePerSpeaker):(length(inputSound) - nbSamplePerSpeaker);
 endIdx = nbSamplePerSpeaker:nbSamplePerSpeaker:length(inputSound);
 
 if length(startIdx) ~= length(endIdx)
-    
+
     startIdx(end+1) = (length(inputSound) - nbSamplePerSpeaker) + 1; %#ok<*AGROW>
-    
+
 end
 
 % loop through the audiofiles, extract each chunk and save as `*.wav` if necessary
 for iSpeaker = 1:nbSpeakers
-    
+
     soundArray{iSpeaker} = inputSound(startIdx(iSpeaker):endIdx(iSpeaker))';
-    
+
     if saveAsWav
-        
+
         fileChunkName = fullfile(outputPath, ...
             [inputName, num2str(audioLength*1000), ...
             'ms_speaker-' num2str(iSpeaker) '.wav']);
-        
+
         audiowrite(fileChunkName, ...
             soundArray{iSpeaker}, ...
             sampleRate);
-        
+
     end
-    
+
 end
 
 

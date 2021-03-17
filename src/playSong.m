@@ -1,5 +1,7 @@
 
-soundPath = '/Users/barilari/Desktop/technologic.wav';
+soundPath = 'C:\Users\local-admin\Documents\MATLAB\Google\song\technologic.wav';
+
+% soundPath = 'C:\Users\local-admin\Documents\MATLAB\Google\song\belgian_anthem.wav';
 
 % sec
 chunkLength = 3;
@@ -37,13 +39,13 @@ end
 soundArray = cell(floor(audioLength / nbSamplePerChunk), 31);
 
 for iChunk = 1:floor(audioLength / nbSamplePerChunk)
-    
+
     soundChunkArray = cutSoundArray(songArray{iChunk}, 'technologic', 44100, 31, 0);
 
     for iSpeaker = 1:size(soundChunkArray, 2)
-        
+
         soundArray{iChunk, iSpeaker} = soundChunkArray{iSpeaker};
-        
+
     end
 end
 
@@ -61,38 +63,39 @@ speakersArray = [ speakerIdxRightward; ...
                   speakerIdxLeftward; ...
                   speakerIdxDownward; ...
                   speakerIdxUpward ];
-              
+
 axes = { 'horizontal', ...
          'horizontal', ...
          'vertical', ...
          'vertical' };
-     
+
 visualDirection = { 'rightward', ...
                     'leftward', ...
                     'downward', ...
                     'upward' };
-                
+
 jummp = [ 2 2 1 1 ];
-         
-for iChunk = 1:size(songArray, 2)
-    
+
+for iChunk = 1:20 %size(songArray, 2)
+
     casualDirection = Randi(4);
-        
+
     disp(axes{casualDirection});
-        
+
     disp(speakersArray(casualDirection));
-        
+
     disp(visualDirection{casualDirection});
-    
-    playMotionVisual(visualDirection{casualDirection}, ...
-                 0.0387, ...
-                 jummp(casualDirection), ...
-                 1)
-    
-    
+
     playMotionSound(axes{casualDirection}, ...
-                    speakersArray(casualDirection), ...
-                    soundArray(iChunk, :), ...
-                    1);
+                speakersArray(casualDirection, :), ...
+                soundArray(iChunk, :), ...
+                1, ...
+                0);
+
+%     playVisualMotion(visualDirection{casualDirection}, ...
+%                  0.0387, ...
+%                  jummp(casualDirection), ...
+%                  1)
+
 
 end

@@ -1,6 +1,6 @@
 function [outSound] = generateNoise(whichNoise, duration, saveAsWav, fs)
 
-% create pink, white, brown noise with a given duration and sampling rate. 
+% create pink, white, brown noise with a given duration and sampling rate.
 % Then they can be saved as separate `.wav` files or in a array as output
 %
 % USAGE::
@@ -28,35 +28,39 @@ cfg.amp = 0.95;
 cfg.eventRampon          = 0.010; % s
 % offset ramp duration       \_
 cfg.eventRampoff         = 0.010; % s
-  
-  
+
+
 
 switch typeNoise
     case 'white'
-        
+
         outSound = makeWhiteNoise(cfg);
-        
+
     case 'pink'
         outSound = makePinkNoise(cfg);
-        
+
     case 'brown'
         outSound = makeBrownNoise(cfg);
-   
+
 end
 
- 
+
 if saveAsWav
-    
+
     outputPath = fullfile(fileparts(mfilename('fullpath')), '..', ...
                         'inputSounds');
     outputFileName = [num2str(cfg.stimDuration*1000),'ms_', ...
                      typeNoise, 'noise_',...
                      'ramp',num2str(cfg.eventRampon*1000),'ms.wav'];
 
+    if ~isdir(outputPath)
+       mkdir(outputPath);
+    end
+
     audiowrite(fullfile(outputPath,outputFileName), ...
         outSound, ...
         cfg.fs);
-    
+
 end
 
 end
@@ -72,7 +76,7 @@ outSound = outSound/max(outSound);
 % apply ramp
 outSound = applyRamp(outSound,cfg);
 
-% apply amp to avoid chirping 
+% apply amp to avoid chirping
 outSound = cfg.amp .* outSound;
 
 %%listen
@@ -87,9 +91,6 @@ function outSound = makePinkNoise(cfg)
 
 % let's start with white noise
 outSound = randn(1, cfg.stimDuration * cfg.fs);
-
-% limit amplitude to [-1 to 1] aka normalize
-outSound = outSound/max(outSound);
 
 % create q vector for filtering
 pinkFilter = zeros(1, length(outSound));
@@ -106,8 +107,9 @@ outSound = applyRamp(outSound,cfg);
 
 % limit amplitude to [-1 to 1] aka normalize again
 outSound = outSound/max(outSound);
+outSound = outSound/abs(min(outSound));
 
-% apply amp to avoid chirping 
+% apply amp to avoid chirping
 outSound = cfg.amp .* outSound;
 
 end
@@ -118,9 +120,6 @@ function outSound = makeBrownNoise(cfg)
 
 % let's start with white noise
 outSound = randn(1, cfg.stimDuration * cfg.fs);
-
-% limit amplitude to [-1 to 1] aka normalize
-outSound = outSound/max(outSound);
 
 % create q vector for filtering
 brownFilter = zeros(1, length(outSound));
@@ -138,12 +137,12 @@ outSound = applyRamp(outSound,cfg);
 % limit amplitude to [-1 to 1] aka normalize again
 outSound = outSound/max(outSound);
 
-% apply amp to avoid chirping 
+% apply amp to avoid chirping
 outSound = cfg.amp .* outSound;
 
 end
 
-  
+
 function outSound = applyRamp(outSound,cfg)
 
   % number of samples for the onset ramp
@@ -152,18 +151,14 @@ function outSound = applyRamp(outSound,cfg)
   % number of samples for the offset ramp
   rampoffSamples  = round(cfg.eventRampoff * cfg.fs);
 
-  % individual sound event duration 
+  % individual sound event duration
   envEvent = ones(1, round(cfg.stimDuration * cfg.fs));
 
   % make the linear ramps
   envEvent(1:ramponSamples) = envEvent(1:ramponSamples) .* linspace(0, 1, ramponSamples);
   envEvent(end - rampoffSamples + 1:end) = envEvent(end - rampoffSamples + 1:end) .* linspace(1, 0, rampoffSamples);
-  
+
   % apply the ramp onto the sound
   outSound = outSound .* envEvent;
-  
-end  
 
-
-
-
+end
