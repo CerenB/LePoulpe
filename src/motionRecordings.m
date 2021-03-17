@@ -1,59 +1,216 @@
 
-pacedByUser = true;
+pacedByUser = false;
 
 waitForAWhile = 0;
 
+waitForSwtich = 1;
+
+waitAfter = 1;
+
+nbRepetitions = 1;
+
+nbCycles = 1;
+
+soundPath = 'C:\Users\local-admin\Documents\MATLAB\Google\inputMotion';
+
 % build the speaker arrays for each direction
-speakerIdxRightward = generateMotionSpeakerArray('rightward')
+speakerIdxRightward = generateMotionSpeakerArray('rightward');
 
-speakerIdxLeftward = generateMotionSpeakerArray('leftward')
+speakerIdxLeftward = generateMotionSpeakerArray('leftward');
 
-speakerIdxDownward = generateMotionSpeakerArray('downward')
+speakerIdxDownward = generateMotionSpeakerArray('downward');
 
-speakerIdxUpward = generateMotionSpeakerArray('upward')
+speakerIdxUpward = generateMotionSpeakerArray('upward');
 
 %% 1.2
 
 % loadAudio
 
-soundPath = '/Users/barilari/Desktop/technologic.wav';
-
-[outSound, fs] = audioread(soundPath);
+[outSound, fs] = audioread(fullfile(soundPath, 'pink_1p2_ramp100ms.wav'));
 
 % cutAudio
 
 [soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
 
-
-for i = 1:5
-
 pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+for i = 1:nbCycles
 
 playMotionSound('horizontal', ...
                 speakerIdxRightward, ...
                 soundArray, ...
-                1);
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
 
 playMotionSound('horizontal', ...
                 speakerIdxLeftward, ...
                 soundArray, ...
-                1);
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
 
 playMotionSound('vertical', ...
                 speakerIdxDownward, ...
                 soundArray, ...
-                1);
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
 
 playMotionSound('vertical', ...
                 speakerIdxUpward, ...
                 soundArray, ...
-                1);
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
 
 end
 
 
 %% 0.6
 
-%% 1.7
+% loadAudio
+
+[outSound, fs] = audioread(fullfile(soundPath, 'pink_0p6_ramp100ms.wav'));
+
+% cutAudio
+
+[soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
+
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+for i = 1:nbCycles
+
+playMotionSound('horizontal', ...
+                speakerIdxRightward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('horizontal', ...
+                speakerIdxLeftward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('vertical', ...
+                speakerIdxDownward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('vertical', ...
+                speakerIdxUpward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+end
+
 
 %% 0.85
+
+% loadAudio
+
+[outSound, fs] = audioread(fullfile(soundPath, 'pink_0p85_ramp100ms.wav'));
+
+% cutAudio
+
+[soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
+
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+for i = 1:nbCycles
+
+playMotionSound('horizontal', ...
+                speakerIdxRightward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('horizontal', ...
+                speakerIdxLeftward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('vertical', ...
+                speakerIdxDownward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('vertical', ...
+                speakerIdxUpward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+end
+
+%% 0.425
+% loadAudio
+
+[outSound, fs] = audioread(fullfile(soundPath, 'pink_0p425_ramp100ms.wav'));
+
+% cutAudio
+
+[soundArray] = cutSoundArray(outSound, 'pinknoise', fs, nbSpeakers, 0);
+
+pressSpaceForMeOrWait(pacedByUser, waitForAWhile)
+
+for i = 1:nbCycles
+
+playMotionSound('horizontal', ...
+                speakerIdxRightward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('horizontal', ...
+                speakerIdxLeftward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('vertical', ...
+                speakerIdxDownward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+playMotionSound('vertical', ...
+                speakerIdxUpward, ...
+                soundArray, ...
+                nbRepetitions, ...
+                waitForSwtich);
+
+WaitSecs(waitAfter)
+
+end
