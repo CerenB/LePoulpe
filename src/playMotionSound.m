@@ -1,7 +1,7 @@
 % (C) Copyright 2017 Stephanie Cattoir
 % (C) Copyright 2021 CPP LePoulpe developers
 
-function playMotionSound(axis, speakerIdx, soundArray, nbRepetition)
+function playMotionSound(axis, speakerIdx, soundArray, nbRepetition, waitForSwtich)
 
   % This script play a provided sound (cut in chunks one per each speaker) in subsequent speakers
   % to create motion a motionn perception inn both the horizontal and vertical axes
@@ -25,6 +25,7 @@ function playMotionSound(axis, speakerIdx, soundArray, nbRepetition)
   if length(speakerIdx) ~= size(soundArray, 2)
 
     error('The nb of sound chunks ar not equal to the nb of speakers selected')
+
   end
 
   % set sound intensity
@@ -37,7 +38,7 @@ function playMotionSound(axis, speakerIdx, soundArray, nbRepetition)
   sampleRate = 44100;
 
   % sec
-  gap_init = 0.25;
+  gap_init = 0;
   gap_init = gap_init * sampleRate;
 
   switch axis
@@ -45,7 +46,7 @@ function playMotionSound(axis, speakerIdx, soundArray, nbRepetition)
     % name: NI analog card slot
     % value: make the switch between arms (0 = horizontal ; 1 = vertical)
 
-    case 'horizonntal'
+    case 'horizontal'
 
     name = 'PXI1Slot2';
     value = 0;
@@ -81,11 +82,12 @@ function playMotionSound(axis, speakerIdx, soundArray, nbRepetition)
     set(AOLR, 'SampleRate', 44100);
 
     % ----------------------------------------------------------------------------------------------
+    WaitSecs(waitForSwtich);
 
     %% prepare the sound to be loaded in the NI analog card
 
     % set the sound idx to be played in sequence
-    soundIdx = repmat(1:nbSpeakers, [1 2]);
+    soundIdx = [1:nbSpeakers];
 
     % build a corresponding matrix for speaker idx and sound idx:
     % - first raw for the speaker
@@ -103,12 +105,18 @@ function playMotionSound(axis, speakerIdx, soundArray, nbRepetition)
     % make wav matrix with gaps and sounds and designated speakers
     for iSpeaker = 1:length(speakerIdx)
 
-      % add a gap of silce between forth and back
-      if mod(iSpeaker, nbSpeakers) == 0
+
+      if iSpeaker == 1
         gap = gap_init;
       else
         gap = 0.0;
       end
+%       % add a gap of silce between forth and back
+%       if mod(iSpeaker, nbSpeakers) == 0
+%         gap = gap_init;
+%       else
+%         gap = 0.0;
+%       end
 
       % build the final matrix to play at once `data(time, speakerIdx)`
       startPoint = endPoint + 1;
